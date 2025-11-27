@@ -1,0 +1,91 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}{{ tema.nome }} - Portal de Notícias{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Cabeçalho do Tema -->
+    <div class="mb-5" style="border-bottom: 3px solid var(--secondary-color); padding-bottom: 20px;">
+        <h1 style="font-size: 2.2rem; font-weight: 700; color: #222; margin-bottom: 10px;">{{ tema.nome }}</h1>
+        {% if tema.descricao %}
+        <p class="text-muted" style="font-size: 1.05rem; color: #666;">{{ tema.descricao }}</p>
+        {% endif %}
+    </div>
+
+    {% if page_obj.object_list %}
+    <div class="row">
+        {% for editorial in page_obj.object_list %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <article class="card h-100 border-0" style="border-bottom: 1px solid #e5e5e5;">
+                {% if editorial.imagem1 %}
+                <img src="{{ editorial.imagem1.url }}" class="card-img-top" alt="{{ editorial.titulo }}" style="height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body p-0 pt-3 d-flex flex-column">
+                    <h5 class="card-title" style="font-weight: 600; font-size: 1.05rem; color: #222;">{{ editorial.titulo }}</h5>
+                    <p class="card-text text-muted" style="font-size: 0.9rem; flex-grow-1;">{{ editorial.texto|truncatewords:20 }}</p>
+                    <div class="mb-3 mt-2">
+                        {% for t in editorial.temas.all %}
+                        <a href="{% url 'portal:tema' t.slug %}" class="badge badge-light text-primary" style="background: #f0f0f0; color: var(--secondary-color) !important; font-weight: 500; font-size: 0.75rem;">
+                            {{ t.nome }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <small class="text-muted">
+                            📅 {{ editorial.data_publicacao|date:"d/m/Y" }}
+                        </small>
+                        <small class="text-muted">
+                            👁️ {{ editorial.visualizacoes }}
+                        </small>
+                    </div>
+                    <a href="{% url 'portal:detalhe' editorial.id %}" class="btn btn-sm btn-outline-primary w-100">
+                        Ler Mais
+                    </a>
+                </div>
+            </article>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginação -->
+    <nav aria-label="Page navigation" class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1">Primeira</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% else %}
+    <div class="alert alert-info" role="alert">
+        <h4 class="alert-heading">Nenhuma notícia neste tema</h4>
+        <p>Não há editoriais publicados para este tema no momento.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

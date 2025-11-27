@@ -1,0 +1,431 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}{{ editorial.titulo }} - Portal de Notícias{% endblock %}
+
+{% block content %}
+<article class="container py-5">
+    <div class="row">
+        <!-- Main Content (8 cols) -->
+        <div class="col-lg-8">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb" style="background: transparent; padding: 0;">
+                    <li class="breadcrumb-item"><a href="{% url 'portal:home' %}">Home</a></li>
+                    {% for tema in editorial.temas.all %}
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'portal:tema' tema.slug %}">{{ tema.nome }}</a>
+                    </li>
+                    {% endfor %}
+                    <li class="breadcrumb-item active" aria-current="page">{{ editorial.titulo|truncatewords:5 }}</li>
+                </ol>
+            </nav>
+
+            <!-- Article Header -->
+            <div class="mb-5" style="border-bottom: 1px solid #e5e5e5; padding-bottom: 30px;">
+                <div class="mb-3">
+                    {% for tema in editorial.temas.all %}
+                    <a href="{% url 'portal:tema' tema.slug %}" class="badge badge-primary mr-2" style="background: var(--secondary-color); font-size: 0.85rem; padding: 6px 12px;">
+                        {{ tema.nome }}
+                    </a>
+                    {% endfor %}
+                </div>
+
+                <h1 style="font-size: 2.5rem; font-weight: 700; line-height: 1.2; color: #222; margin-bottom: 20px;">
+                    {{ editorial.titulo }}
+                </h1>
+
+                <div class="article-meta text-muted mb-4" style="font-size: 0.95rem;">
+                    <span>📅 {{ editorial.data_publicacao|date:"d \d\e F \d\e Y" }}</span>
+                    <span class="mx-2">•</span>
+                    <span>👁️ {{ editorial.visualizacoes }} visualizações</span>
+                </div>
+            </div>
+
+            <!-- Featured Image (apenas para Layout 1 e 2) -->
+            {% if editorial.layout == 'layout1' or editorial.layout == 'layout2' %}
+            {% if editorial.imagem1 %}
+            <figure style="margin: 0 0 30px 0;">
+                <img src="{{ editorial.imagem1.url }}" alt="{{ editorial.titulo }}" style="width: 100%; height: auto; display: block;">
+            </figure>
+            {% endif %}
+            {% endif %}
+
+            <!-- Article Body -->
+            <div class="article-body" style="font-size: 1.05rem; line-height: 1.8; color: #333;">
+                {% if editorial.layout == 'layout2' %}
+                    <!-- Layout 2: Imagem Grande, Texto, Imagem Grande, Texto, Imagem Grande, Texto -->
+                    {% with secoes=editorial.dividir_texto_em_3 %}
+                    
+                    <!-- Seção 1: Imagem + Texto -->
+                    <div class="layout2-section mb-5">
+                        {% if editorial.imagem1 %}
+                        <figure style="margin: 0 0 20px 0;">
+                            <img src="{{ editorial.imagem1.url }}" alt="Imagem 1" style="width: 100%; height: auto; display: block; border-radius: 4px;">
+                        </figure>
+                        {% endif %}
+                        <div style="margin-bottom: 30px;">
+                            {% autoescape off %}
+                            {{ secoes.0|linebreaks }}
+                            {% endautoescape %}
+                        </div>
+                    </div>
+                    
+                    <!-- Seção 2: Imagem + Texto -->
+                    <div class="layout2-section mb-5">
+                        {% if editorial.imagem2 %}
+                        <figure style="margin: 0 0 20px 0;">
+                            <img src="{{ editorial.imagem2.url }}" alt="Imagem 2" style="width: 100%; height: auto; display: block; border-radius: 4px;">
+                        </figure>
+                        {% endif %}
+                        <div style="margin-bottom: 30px;">
+                            {% autoescape off %}
+                            {{ secoes.1|linebreaks }}
+                            {% endautoescape %}
+                        </div>
+                    </div>
+                    
+                    <!-- Seção 3: Imagem + Texto -->
+                    <div class="layout2-section mb-5">
+                        {% if editorial.imagem3 %}
+                        <figure style="margin: 0 0 20px 0;">
+                            <img src="{{ editorial.imagem3.url }}" alt="Imagem 3" style="width: 100%; height: auto; display: block; border-radius: 4px;">
+                        </figure>
+                        {% endif %}
+                        <div>
+                            {% autoescape off %}
+                            {{ secoes.2|linebreaks }}
+                            {% endautoescape %}
+                        </div>
+                    </div>
+                    {% endwith %}
+
+                {% elif editorial.layout == 'layout3' %}
+                    <!-- Layout 3: Estilo Jornal - 2 paragrafos, depois imagens intercaladas -->
+                    {% with secoes=editorial.dividir_texto_em_6 %}
+                    
+                    <!-- Seção inicial: 2 parágrafos (col-12) -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            {% autoescape off %}
+                            {{ secoes.0|linebreaks }}
+                            {{ secoes.1|linebreaks }}
+                            {% endautoescape %}
+                        </div>
+                    </div>
+                    
+                    <!-- Imagem 1 (col-6) + Texto (col-6) -->
+                    <div class="row mb-4" style="display: flex; gap: 0;">
+                        <div class="col-md-6 mb-3 mb-md-0" style="padding-right: 0; padding-left: 0;">
+                            {% if editorial.imagem1 %}
+                            <figure style="margin: 0; padding: 0;">
+                                <img src="{{ editorial.imagem1.url }}" alt="Imagem 1" style="width: 100%; height: auto; border-radius: 4px; display: block;">
+                            </figure>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6" style="padding-left: 15px; padding-right: 0;">
+                            <div style="margin: 0;">
+                                {% autoescape off %}
+                                {{ secoes.2|linebreaks }}
+                                {% endautoescape %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Texto (col-6) + Imagem 2 (col-6) -->
+                    <div class="row mb-4" style="display: flex; gap: 0;">
+                        <div class="col-md-6 order-md-2 mb-3 mb-md-0" style="padding-left: 0; padding-right: 0;">
+                            {% if editorial.imagem2 %}
+                            <figure style="margin: 0; padding: 0;">
+                                <img src="{{ editorial.imagem2.url }}" alt="Imagem 2" style="width: 100%; height: auto; border-radius: 4px; display: block;">
+                            </figure>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 order-md-1" style="padding-right: 15px; padding-left: 0;">
+                            <div style="margin: 0;">
+                                {% autoescape off %}
+                                {{ secoes.3|linebreaks }}
+                                {% endautoescape %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Imagem 3 (col-6) + Texto (col-6) -->
+                    <div class="row mb-4" style="display: flex; gap: 0;">
+                        <div class="col-md-6 mb-3 mb-md-0" style="padding-right: 0; padding-left: 0;">
+                            {% if editorial.imagem3 %}
+                            <figure style="margin: 0; padding: 0;">
+                                <img src="{{ editorial.imagem3.url }}" alt="Imagem 3" style="width: 100%; height: auto; border-radius: 4px; display: block;">
+                            </figure>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6" style="padding-left: 15px; padding-right: 0;">
+                            <div style="margin: 0;">
+                                {% autoescape off %}
+                                {{ secoes.4|linebreaks }}
+                                {% endautoescape %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+
+                {% else %}
+                    <!-- Layout 1: Texto normal -->
+                    {{ editorial.texto|linebreaks }}
+                {% endif %}
+            </div>
+
+            <!-- Share Section -->
+            <div style="margin: 40px 0; padding: 20px; background: #f8f8f8; border-radius: 4px; border-left: 4px solid var(--secondary-color);">
+                <h6 style="font-weight: 600; margin-bottom: 15px;">Compartilhe esta notícia</h6>
+                <div class="d-flex gap-2">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=http://seu-site.com{% url 'portal:detalhe' editorial.id %}" 
+                       class="btn btn-sm btn-primary" target="_blank">📘 Facebook</a>
+                    <a href="https://twitter.com/intent/tweet?url=http://seu-site.com{% url 'portal:detalhe' editorial.id %}&text={{ editorial.titulo }}" 
+                       class="btn btn-sm btn-info" target="_blank">𝕏 Twitter</a>
+                    <a href="https://www.linkedin.com/sharing/share-offsite/?url=http://seu-site.com{% url 'portal:detalhe' editorial.id %}" 
+                       class="btn btn-sm btn-secondary" target="_blank">💼 LinkedIn</a>
+                </div>
+            </div>
+
+            <!-- Related Articles -->
+            {% if editoriais_relacionados %}
+            <div style="margin-top: 60px; padding-top: 30px; border-top: 1px solid #e5e5e5;">
+                <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 20px;">Leia também</h3>
+                <div class="row">
+                    {% for relacionado in editoriais_relacionados %}
+                    <div class="col-md-6 mb-4">
+                        <article class="card h-100 border-0" style="border-bottom: 1px solid #e5e5e5;">
+                            {% if relacionado.imagem1 %}
+                            <img src="{{ relacionado.imagem1.url }}" class="card-img-top" alt="{{ relacionado.titulo }}" style="height: 200px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body p-0 pt-3">
+                                <h5 class="card-title" style="font-weight: 600; font-size: 1.05rem; color: #222;">
+                                    {{ relacionado.titulo }}
+                                </h5>
+                                <p class="card-text text-muted" style="font-size: 0.9rem;">
+                                    {{ relacionado.texto|truncatewords:20 }}
+                                </p>
+                                <a href="{% url 'portal:detalhe' relacionado.id %}" class="btn btn-sm btn-outline-primary mt-2">
+                                    Ler Artigo
+                                </a>
+                            </div>
+                        </article>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar (4 cols) -->
+        <div class="col-lg-4 pl-lg-5">
+            <!-- Author Box -->
+            {% if editorial.autor %}
+            <div style="background: #f8f8f8; padding: 20px; border-radius: 4px; margin-bottom: 30px;">
+                <h5 style="font-weight: 600; margin-bottom: 15px;">✍️ Sobre o autor</h5>
+                
+                {% if editorial.autor.foto %}
+                <img src="{{ editorial.autor.foto.url }}" alt="{{ editorial.autor.nome_completo }}" 
+                     style="width: 100%; height: auto; margin-bottom: 15px; border-radius: 4px;">
+                {% endif %}
+                
+                <h6 style="font-weight: 600; margin-bottom: 5px;">
+                    <a href="{% url 'portal:detalhe_autor' editorial.autor.apelido %}" 
+                       style="text-decoration: none; color: #000;">
+                        {{ editorial.autor.nome_completo }}
+                    </a>
+                </h6>
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">{{ editorial.autor.apelido }}</p>
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">{{ editorial.autor.resumo }}</p>
+                
+                <!-- Author Social Links -->
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px;">
+                    {% if editorial.autor.website %}
+                    <a href="{{ editorial.autor.website }}" target="_blank" 
+                       class="btn btn-sm btn-outline-secondary" title="Website">
+                        <i class="fas fa-globe"></i>
+                    </a>
+                    {% endif %}
+                    {% if editorial.autor.twitter %}
+                    <a href="{{ editorial.autor.twitter }}" target="_blank" 
+                       class="btn btn-sm btn-outline-secondary" title="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    {% endif %}
+                    {% if editorial.autor.linkedin %}
+                    <a href="{{ editorial.autor.linkedin }}" target="_blank" 
+                       class="btn btn-sm btn-outline-secondary" title="LinkedIn">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    {% endif %}
+                    {% if editorial.autor.instagram %}
+                    <a href="{{ editorial.autor.instagram }}" target="_blank" 
+                       class="btn btn-sm btn-outline-secondary" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    {% endif %}
+                    {% if editorial.autor.facebook %}
+                    <a href="{{ editorial.autor.facebook }}" target="_blank" 
+                       class="btn btn-sm btn-outline-secondary" title="Facebook">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    {% endif %}
+                </div>
+                
+                <a href="{% url 'portal:detalhe_autor' editorial.autor.apelido %}" 
+                   class="btn btn-sm btn-dark btn-block" style="width: 100%;">
+                    Ver mais artigos
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Newsletter Box -->
+            <div style="background: #f8f8f8; padding: 20px; border-radius: 4px; margin-bottom: 30px;">
+                <h5 style="font-weight: 600; margin-bottom: 15px;">📬 Fique por dentro</h5>
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">
+                    Receba as últimas notícias dos seus temas favoritos.
+                </p>
+                <button type="button" class="btn btn-primary btn-block" style="background: var(--secondary-color); border: none;" data-bs-toggle="modal" data-bs-target="#modalNewsletter">
+                    Inscrever-se
+                </button>
+            </div>
+
+            <!-- Trending Box -->
+            <div style="background: #f8f8f8; padding: 20px; border-radius: 4px; margin-bottom: 30px;">
+                <h5 style="font-weight: 600; margin-bottom: 15px;">🔥 Tendências</h5>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    {% for tema in temas|slice:":5" %}
+                    <li style="padding: 10px 0; border-bottom: 1px solid #e5e5e5;">
+                        <a href="{% url 'portal:tema' tema.slug %}" style="color: var(--secondary-color); text-decoration: none; font-weight: 500;">
+                            {{ tema.nome }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- About Section -->
+            <div style="background: white; padding: 20px; border: 1px solid #e5e5e5; border-radius: 4px;">
+                <h5 style="font-weight: 600; margin-bottom: 10px;">Sobre este portal</h5>
+                <p style="font-size: 0.85rem; color: #666; line-height: 1.6;">
+                    {% if site_config %}
+                        {{ site_config.sobre }}
+                    {% else %}
+                        Seu portal de notícias com conteúdo atualizado, relevante e de qualidade. Acompanhe os temas que mais importam para você.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</article>
+
+<style>
+    .article-body {
+        font-family: Georgia, serif;
+    }
+
+    .article-body p {
+        margin-bottom: 1.5rem;
+        margin-top: 0;
+    }
+
+    /* Layout 3 - remover margins extras */
+    .article-body div[style*="margin: 0"] p {
+        margin-bottom: 1rem;
+        margin-top: 0;
+    }
+
+    .article-body h2 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin: 2rem 0 1rem 0;
+        color: #222;
+    }
+
+    .article-body h3 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin: 1.5rem 0 0.8rem 0;
+        color: #222;
+    }
+
+    @media (max-width: 768px) {
+        .article-body {
+            font-size: 1rem;
+        }
+
+        h1 {
+            font-size: 1.8rem !important;
+        }
+    }
+</style>
+
+<!-- Editoriais Relacionados -->
+{% if editoriais_relacionados %}
+<div class="row mt-5 pt-5 border-top">
+    <div class="col-lg-12">
+        <h3 class="mb-4">📌 Notícias Relacionadas</h3>
+    </div>
+    {% for editorial_rel in editoriais_relacionados %}
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100">
+            {% if editorial_rel.imagem1 %}
+            <img src="{{ editorial_rel.imagem1.url }}" class="card-img-top" alt="{{ editorial_rel.titulo }}">
+            {% else %}
+            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center">
+                <span class="text-white">Sem Imagem</span>
+            </div>
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ editorial_rel.titulo }}</h5>
+                <p class="card-text flex-grow-1">{{ editorial_rel.texto|truncatewords:15 }}</p>
+                <a href="{% url 'portal:detalhe' editorial_rel.id %}" class="btn btn-primary btn-sm mt-auto">
+                    Ler Mais →
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Voltar -->
+<div class="row mt-4">
+    <div class="col-lg-12">
+        <a href="javascript:history.back()" class="btn btn-secondary">← Voltar</a>
+        <a href="{% url 'portal:home' %}" class="btn btn-primary">Home</a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .editorial-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #333;
+    }
+
+    .editorial-content p {
+        margin-bottom: 15px;
+    }
+
+    .estilo-1 {
+        background: white;
+    }
+
+    .estilo-2 {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 30px;
+        border-radius: 8px;
+    }
+
+    .estilo-3 {
+        background: white;
+        padding: 30px;
+        border: 3px solid #e74c3c;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
