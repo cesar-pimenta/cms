@@ -1,0 +1,188 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}{{ autor.nome_completo }} - Portal de Notícias{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <!-- Cabeçalho do Autor -->
+    <div class="row mb-5">
+        <div class="col-md-3 mb-4 mb-md-0">
+            {% if autor.foto %}
+                <img src="{{ autor.foto.url }}" alt="{{ autor.nome_completo }}" 
+                     class="img-fluid" style="border-radius: 0;">
+            {% else %}
+                <div class="d-flex align-items-center justify-content-center" 
+                     style="height: 300px; background: #f8f9fa;">
+                    <i class="fas fa-user-circle fa-10x text-secondary"></i>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-9">
+            <h1 class="mb-2">{{ autor.nome_completo }}</h1>
+            <p class="text-secondary mb-3">{{ autor.apelido }}</p>
+            <p style="font-size: 1.1rem; line-height: 1.6;">{{ autor.resumo }}</p>
+            
+            <!-- Redes Sociais -->
+            <div class="mt-4 pt-3 border-top">
+                <h6 class="mb-3">Conecte-se</h6>
+                <div class="d-flex gap-3 flex-wrap">
+                    {% if autor.website %}
+                        <a href="{{ autor.website }}" target="_blank" 
+                           class="btn btn-sm btn-dark">
+                            <i class="fas fa-globe"></i> Website
+                        </a>
+                    {% endif %}
+                    {% if autor.twitter %}
+                        <a href="{{ autor.twitter }}" target="_blank" 
+                           class="btn btn-sm btn-dark">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a>
+                    {% endif %}
+                    {% if autor.linkedin %}
+                        <a href="{{ autor.linkedin }}" target="_blank" 
+                           class="btn btn-sm btn-dark">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </a>
+                    {% endif %}
+                    {% if autor.instagram %}
+                        <a href="{{ autor.instagram }}" target="_blank" 
+                           class="btn btn-sm btn-dark">
+                            <i class="fab fa-instagram"></i> Instagram
+                        </a>
+                    {% endif %}
+                    {% if autor.facebook %}
+                        <a href="{{ autor.facebook }}" target="_blank" 
+                           class="btn btn-sm btn-dark">
+                            <i class="fab fa-facebook"></i> Facebook
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr style="border-top: 1px solid #ddd;">
+
+    <!-- Artigos do Autor -->
+    <div class="row mt-5">
+        <div class="col-md-8">
+            <h2 class="mb-4">Artigos de {{ autor.nome_completo }}</h2>
+            
+            {% if editoriais %}
+                <div class="row g-4">
+                    {% for editorial in editoriais %}
+                        <div class="col-12">
+                            <article class="row g-0 border-bottom pb-4 mb-4" style="border-bottom: 1px solid #ddd;">
+                                {% if editorial.imagem1 %}
+                                    <div class="col-md-4">
+                                        <img src="{{ editorial.imagem1.url }}" alt="{{ editorial.titulo }}" 
+                                             style="width: 100%; height: 200px; object-fit: cover;">
+                                    </div>
+                                    <div class="col-md-8 ps-md-4">
+                                {% else %}
+                                    <div class="col-12">
+                                {% endif %}
+                                        <h3 class="mb-2">
+                                            <a href="{% url 'portal:detalhe' editorial.pk %}" 
+                                               style="text-decoration: none; color: #000;">
+                                                {{ editorial.titulo }}
+                                            </a>
+                                        </h3>
+                                        <p class="text-secondary small mb-2">
+                                            <i class="fas fa-calendar"></i> {{ editorial.data_publicacao|date:"d M Y" }}
+                                            {% if editorial.temas.all %}
+                                                | 
+                                                {% for tema in editorial.temas.all %}
+                                                    <a href="{% url 'portal:tema' tema.slug %}" 
+                                                       style="text-decoration: none; color: #666;">
+                                                        {{ tema.nome }}
+                                                    </a>
+                                                    {% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        </p>
+                                        <p class="text-secondary">{{ editorial.texto|truncatewords:30 }}</p>
+                                        <a href="{% url 'portal:detalhe' editorial.pk %}" 
+                                           class="btn btn-sm btn-outline-dark">
+                                            Ler mais
+                                        </a>
+                                    </div>
+                                {% if editorial.imagem1 %}</div>{% endif %}
+                            </article>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Paginação -->
+                {% if page_obj.has_other_pages %}
+                    <nav aria-label="Paginação" class="mt-5">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">Primeira</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                                </span>
+                            </li>
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i> Nenhum artigo publicado ainda.
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Outros Autores -->
+            <div class="mb-4 pb-4 border-bottom">
+                <h5 class="mb-3">Outros Autores</h5>
+                <div class="list-group list-group-flush">
+                    {% for outro_autor in outros_autores %}
+                        {% if outro_autor.apelido %}
+                            <a href="{% url 'portal:detalhe_autor' outro_autor.apelido %}" 
+                               class="list-group-item list-group-item-action">
+                                {{ outro_autor.nome_completo }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <a href="{% url 'portal:autores' %}" class="btn btn-outline-dark btn-sm mt-3 w-100">
+                    Ver todos os autores
+                </a>
+            </div>
+
+            <!-- Temas -->
+            <div class="mb-4">
+                <h5 class="mb-3">Temas</h5>
+                <div class="list-group list-group-flush">
+                    {% for tema in temas %}
+                        <a href="{% url 'portal:tema' tema.slug %}" 
+                           class="list-group-item list-group-item-action">
+                            {{ tema.nome }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
