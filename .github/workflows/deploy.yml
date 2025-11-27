@@ -1,0 +1,102 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - staging
+    tags:
+      - 'v*'
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: cesarpiementa/cms
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        include:
+          - branch: develop
+            environment: development
+            droplet_ip: ${{ secrets.DO_DROPLET_DEV_IP }}
+          - branch: staging
+            environment: staging
+            droplet_ip: ${{ secrets.DO_DROPLET_STAGING_IP }}
+          - branch: main
+            environment: production
+            droplet_ip: ${{ secrets.DO_DROPLET_PROD_IP }}
+    
+    if: |
+      (github.ref == 'refs/heads/develop' && matrix.branch == 'develop') ||
+      (github.ref == 'refs/heads/staging' && matrix.branch == 'staging') ||
+      (github.ref == 'refs/heads/main' && matrix.branch == 'main')
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy to ${{ matrix.environment }}
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ matrix.droplet_ip }}
+        username: root
+        key: ${{ secrets.DO_SSH_KEY }}
+        script: |
+          cd /app/cms
+          git fetch origin
+          git checkout ${{ github.ref_name }}
+          git pull origin ${{ github.ref_name }}
+          
+          docker-compose -f docker-compose.yml pull
+          docker-compose -f docker-compose.yml up -d
+          docker-compose -f docker-compose.yml exec -T django python manage.py migrate --noinput
+          docker-compose -f docker-compose.yml exec -T django python manage.py collectstatic --noinput
+
+    - name: Health check
+      run: |
+        sleep 10
+        curl -f http://${{ matrix.droplet_ip }}/health/ || exit 1
+
+    - name: Notify Slack on success
+      if: success()
+      uses: slackapi/slack-github-action@v1
+      with:
+        payload: |
+          {
+            "text": "✅ Deploy to ${{ matrix.environment }} successful!",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "✅ *Deployment Successful*\nEnvironment: ${{ matrix.environment }}\nCommit: ${{ github.sha }}\nBranch: ${{ github.ref_name }}"
+                }
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+    - name: Notify Slack on failure
+      if: failure()
+      uses: slackapi/slack-github-action@v1
+      with:
+        payload: |
+          {
+            "text": "❌ Deploy to ${{ matrix.environment }} failed!",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "❌ *Deployment Failed*\nEnvironment: ${{ matrix.environment }}\nCommit: ${{ github.sha }}\nBranch: ${{ github.ref_name }}"
+                }
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
