@@ -1,85 +1,137 @@
-// Logo Header Scroll Behavior - Homepage Only
+/**
+ * Logo Header Scroll Behavior Script
+ * Hides/shows logo header on scroll, only on homepage
+ * Smooth animations with requestAnimationFrame optimization
+ */
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Only execute on homepage
-    const isHomepage = document.body.classList.contains('page-home') || 
-                       document.body.id === 'page-home' ||
-                       window.location.pathname === '/' ||
-                       window.location.pathname === '/portal/';
+(function() {
+    'use strict';
 
-    if (!isHomepage) {
-        return;
-    }
+    // Configuration
+    const CONFIG = {
+        scrollThreshold: 80,  // pixels to scroll before hiding
+        debounceDelay: 10      // ms for scroll debouncing
+    };
 
-    const logoHeader = document.getElementById('logo-header');
-    const mainContent = document.querySelector('main');
-    
-    if (!logoHeader) {
-        console.warn('Logo header element not found');
-        return;
-    }
+    // Initialize when DOM is ready
+    function init() {
+        // Check if we're on the homepage
+        const isHomepage = isOnHomepage();
+        if (!isHomepage) {
+            return;
+        }
 
-    let lastScrollY = 0;
-    let isHeaderHidden = false;
-    let scrollThreshold = 100; // Hide after scrolling 100px
-    let ticking = false;
+        // Get elements
+        const logoHeader = document.getElementById('logo-header');
+        if (!logoHeader) {
+            console.warn('Logo header element (#logo-header) not found');
+            return;
+        }
 
-    function updateLogoHeaderPosition() {
-        const currentScrollY = window.scrollY || window.pageYOffset;
+        // Mark page as homepage for CSS
+        document.body.classList.add('page-home');
 
-        if (currentScrollY > scrollThreshold) {
-            // Check scroll direction
-            if (currentScrollY > lastScrollY) {
-                // Scrolling DOWN - hide header
-                if (!isHeaderHidden) {
-                    logoHeader.classList.add('hide');
-                    if (mainContent) {
-                        mainContent.classList.add('logo-hidden');
-                    }
-                    isHeaderHidden = true;
-                }
-            } else {
-                // Scrolling UP - show header
-                if (isHeaderHidden) {
-                    logoHeader.classList.remove('hide');
-                    if (mainContent) {
-                        mainContent.classList.remove('logo-hidden');
-                    }
-                    isHeaderHidden = false;
-                }
+        // Setup scroll handler
+        const scrollHandler = new ScrollHandler(logoHeader);
+        
+        // Listen for scroll events
+        window.addEventListener('scroll', scrollHandler.onScroll.bind(scrollHandler), { 
+            passive: true 
+        });
+
+        // Handle page visibility (mobile browsers)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                scrollHandler.update();
             }
-        } else {
-            // At top - always show header
-            if (isHeaderHidden) {
-                logoHeader.classList.remove('hide');
-                if (mainContent) {
-                    mainContent.classList.remove('logo-hidden');
-                }
-                isHeaderHidden = false;
+        });
+
+        console.log('Logo header scroll behavior initialized on homepage');
+    }
+
+    /**
+     * Check if current page is the homepage
+     */
+    function isOnHomepage() {
+        // Check for body class
+        if (document.body.classList.contains('page-home')) {
+            return true;
+        }
+
+        // Check for page-home ID
+        if (document.body.id === 'page-home') {
+            return true;
+        }
+
+        // Check URL path
+        const path = window.location.pathname;
+        if (path === '/' || path === '/portal/' || path === '/portal') {
+            return true;
+        }
+
+        // Check for homepage marker in DOM
+        if (document.querySelector('[data-page="home"]')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Scroll event handler with optimization
+     */
+    class ScrollHandler {
+        constructor(element) {
+            this.element = element;
+            this.lastScrollY = 0;
+            this.isHidden = false;
+            this.ticking = false;
+        }
+
+        onScroll() {
+            if (!this.ticking) {
+                window.requestAnimationFrame(() => {
+                    this.update();
+                    this.ticking = false;
+                });
+                this.ticking = true;
             }
         }
 
-        lastScrollY = currentScrollY;
-        ticking = false;
-    }
+        update() {
+            const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // Determine if we should hide the header
+            const shouldHide = currentScrollY > CONFIG.scrollThreshold && 
+                              currentScrollY > this.lastScrollY;
+            
+            // Only update if state changed
+            if (shouldHide && !this.isHidden) {
+                this.hide();
+                this.isHidden = true;
+            } else if (!shouldHide && this.isHidden) {
+                this.show();
+                this.isHidden = false;
+            }
 
-    function onScroll() {
-        if (!ticking) {
-            window.requestAnimationFrame(updateLogoHeaderPosition);
-            ticking = true;
+            this.lastScrollY = currentScrollY;
+        }
+
+        hide() {
+            this.element.classList.add('hide');
+        }
+
+        show() {
+            this.element.classList.remove('hide');
         }
     }
 
-    // Add scroll listener
-    window.addEventListener('scroll', onScroll, { passive: true });
+    // Initialize when DOM is loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 
-    // Initial state
-    updateLogoHeaderPosition();
+})();
 
-    // Cleanup on page unload
-    window.addEventListener('beforeunload', function() {
-        window.removeEventListener('scroll', onScroll);
-    });
-
-    console.log('Logo header scroll behavior initialized');
-});
