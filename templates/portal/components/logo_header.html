@@ -1,13 +1,19 @@
 {% load static %}
 <!-- Logo Header - Only on Homepage -->
+{% if site_config %}
 <header id="logo-header" class="logo-header">
     <div class="logo-container">
         <div class="logo-content">
+            {% if site_config.logo %}
+            <img src="{{ site_config.logo.url }}" alt="{{ site_config.nome_site }}" class="logo-img">
+            {% else %}
             <img src="{% static 'images/logo-placeholder.svg' %}" alt="Logo da Empresa" class="logo-img">
+            {% endif %}
             <div class="company-info">
-                <h1 class="company-name">Seu Portal de Notícias</h1>
-                <p class="company-tagline">Notícias atualizadas todos os dias</p>
+                <h1 class="company-name">{{ site_config.nome_site }}</h1>
+                <p class="company-tagline">{{ site_config.tagline }}</p>
             </div>
         </div>
     </div>
 </header>
+{% endif %}

@@ -23,6 +23,8 @@
 
         // Get elements
         const logoHeader = document.getElementById('logo-header');
+        const navbar = document.querySelector('.navbar');
+        
         if (!logoHeader) {
             console.warn('Logo header element (#logo-header) not found');
             return;
@@ -32,7 +34,7 @@
         document.body.classList.add('page-home');
 
         // Setup scroll handler
-        const scrollHandler = new ScrollHandler(logoHeader);
+        const scrollHandler = new ScrollHandler(logoHeader, navbar);
         
         // Listen for scroll events
         window.addEventListener('scroll', scrollHandler.onScroll.bind(scrollHandler), { 
@@ -81,8 +83,9 @@
      * Scroll event handler with optimization
      */
     class ScrollHandler {
-        constructor(element) {
-            this.element = element;
+        constructor(logoHeader, navbar) {
+            this.logoHeader = logoHeader;
+            this.navbar = navbar;
             this.lastScrollY = 0;
             this.isHidden = false;
             this.ticking = false;
@@ -118,11 +121,17 @@
         }
 
         hide() {
-            this.element.classList.add('hide');
+            this.logoHeader.classList.add('hide');
+            if (this.navbar) {
+                this.navbar.classList.add('navbar-hidden');
+            }
         }
 
         show() {
-            this.element.classList.remove('hide');
+            this.logoHeader.classList.remove('hide');
+            if (this.navbar) {
+                this.navbar.classList.remove('navbar-hidden');
+            }
         }
     }
 

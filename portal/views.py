@@ -11,10 +11,12 @@ def home(request):
     """Página inicial com os últimos editoriais"""
     editoriais = Editorial.obter_publicados()[:10]
     temas = Tema.objects.filter(ativo=True)
+    site_config = ConfiguracaoSite.get_config()
     
     context = {
         'editoriais': editoriais,
         'temas': temas,
+        'site_config': site_config,
         'pagina_atual': 'home',
     }
     return render(request, 'portal/home.html', context)
