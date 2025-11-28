@@ -41,7 +41,7 @@ class AutorAdmin(admin.ModelAdmin):
 class ConfiguracaoSiteAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Informações do Site', {
-            'fields': ('nome_site', 'tagline', 'logo', 'sobre')
+            'fields': ('nome_site', 'tagline', 'logo', 'altura_logo_header', 'sobre')
         }),
         ('Contato', {
             'fields': ('email_contato', 'telefone', 'endereco')
