@@ -5,30 +5,6 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/logo-header.css' %}">
-<style>
-    /* Homepage specific navbar adjustments for logo header */
-    .page-home .navbar {
-        position: fixed !important;
-        top: var(--header-height, 80px);
-        left: 0;
-        right: 0;
-        z-index: 999;
-        width: 100%;
-        margin: 0;
-        padding-top: 0 !important;
-        padding-bottom: 0;
-        transition: top 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .page-home .navbar.navbar-hidden {
-        top: 0;
-    }
-    
-    /* Ensure navbar is never sticky on homepage */
-    .page-home .sticky-top {
-        position: fixed !important;
-    }
-</style>
 {% endblock %}
 
 {% block content %}
