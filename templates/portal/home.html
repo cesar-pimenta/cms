@@ -1,8 +1,16 @@
 {% extends 'portal/base.html' %}
+{% load static %}
 
 {% block title %}Últimas Notícias - Portal de Notícias{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/logo-header.css' %}">
+{% endblock %}
+
 {% block content %}
+<!-- Logo Header - Homepage Only -->
+{% include 'portal/components/logo_header.html' %}
+
 <div class="container-fluid p-0">
     <!-- Featured Story (Grande Destaque) -->
     {% if editoriais %}
@@ -124,4 +132,14 @@
         }
     }
 </style>
+
+<!-- Mark this page as homepage for logo header script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.body.classList.add('page-home');
+    });
+</script>
+
+<!-- Logo Header Scroll Behavior Script -->
+<script src="{% static 'js/logo-header.js' %}"></script>
 {% endblock %}
