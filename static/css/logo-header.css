@@ -89,6 +89,21 @@
     padding-top: 0 !important;
     padding-bottom: 0 !important;
     transition: top 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: #212529 !important;
+    border: none !important;
+}
+
+/* FALLBACK: Se por algum motivo page-home não for adicionado, force a navbar para baixo do logo */
+.navbar {
+    position: fixed !important;
+    top: var(--header-height, 80px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 999 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
 }
 
 .page-home .navbar.navbar-hidden {

@@ -262,7 +262,7 @@
 
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body{% block body_class %}{% endblock %}>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
