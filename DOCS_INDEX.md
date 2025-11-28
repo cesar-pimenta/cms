@@ -35,6 +35,17 @@ Para implementação completa:
    - Troubleshooting avançado
    - **Tempo:** 30 min
 
+## 🎨 Guias de Recursos
+
+Para customizar e estender:
+
+5. **[LOGO_HEADER.md](./LOGO_HEADER.md)** ✨ NEW
+   - Logo header na homepage
+   - Comportamento ao scroll
+   - Customização (cores, tamanhos)
+   - Troubleshooting
+   - **Tempo:** 10 min
+
 ## 📋 Referência Rápida
 
 ### Arquivos Importantes
