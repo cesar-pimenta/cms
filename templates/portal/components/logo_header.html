@@ -1,7 +1,7 @@
 {% load static %}
 <!-- Logo Header - Only on Homepage -->
 {% if site_config %}
-<header id="logo-header" class="logo-header">
+<header id="logo-header" class="logo-header" style="--header-height: {{ site_config.altura_logo_header }}px;">
     <div class="logo-container">
         <div class="logo-content">
             {% if site_config.logo %}

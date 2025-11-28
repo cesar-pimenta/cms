@@ -68,8 +68,13 @@ class ConfiguracaoSite(models.Model):
     facebook = models.URLField(blank=True, null=True)
     youtube = models.URLField(blank=True, null=True)
     
-    # Logo
+    # Logo e Header
     logo = models.ImageField(upload_to='site/', blank=True, null=True)
+    altura_logo_header = models.IntegerField(
+        default=80,
+        validators=[MinValueValidator(50), MaxValueValidator(200)],
+        help_text="Altura da área do logo header em pixels (50-200px recomendado)"
+    )
     
     atualizado_em = models.DateTimeField(auto_now=True)
 

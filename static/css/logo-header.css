@@ -3,12 +3,13 @@
 .logo-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 18px 0;
+    padding: calc((var(--header-height, 80px) - 52px) / 2) 0;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1000;
+    height: var(--header-height, 80px);
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
                 opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     transform: translateY(0);
@@ -79,7 +80,7 @@
 /* Page layout adjustments for logo header */
 .page-home .navbar {
     position: fixed;
-    top: 70px;
+    top: var(--header-height, 80px);
     left: 0;
     right: 0;
     z-index: 999;
@@ -98,7 +99,7 @@
 
 /* Content margin adjustments */
 .page-home main {
-    margin-top: calc(70px + 60px); /* logo-header height + navbar height */
+    margin-top: calc(var(--header-height, 80px) + 60px); /* logo-header height + navbar height */
     transition: margin-top 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: margin-top;
 }
@@ -110,7 +111,7 @@
 /* Tablet & iPad */
 @media (max-width: 992px) {
     .logo-header {
-        padding: 16px 0;
+        padding: calc((var(--header-height, 80px) - 48px) / 2) 0;
     }
 
     .logo-content {
@@ -131,11 +132,11 @@
     }
 
     .page-home .navbar {
-        top: 65px;
+        top: var(--header-height, 80px);
     }
 
     .page-home main {
-        margin-top: calc(65px + 55px);
+        margin-top: calc(var(--header-height, 80px) + 55px);
     }
 
     .page-home main.logo-hidden {
@@ -146,7 +147,7 @@
 /* Mobile */
 @media (max-width: 768px) {
     .logo-header {
-        padding: 12px 0;
+        padding: calc((var(--header-height, 80px) - 44px) / 2) 0 !important;
     }
 
     .logo-container {
@@ -172,11 +173,11 @@
     }
 
     .page-home .navbar {
-        top: 60px;
+        top: var(--header-height, 80px);
     }
 
     .page-home main {
-        margin-top: calc(60px + 50px);
+        margin-top: calc(var(--header-height, 80px) + 50px);
     }
 
     .page-home main.logo-hidden {
@@ -187,7 +188,7 @@
 /* Small Mobile */
 @media (max-width: 480px) {
     .logo-header {
-        padding: 10px 0;
+        padding: calc((var(--header-height, 80px) - 40px) / 2) 0 !important;
     }
 
     .logo-container {
@@ -213,11 +214,11 @@
     }
 
     .page-home .navbar {
-        top: 55px;
+        top: var(--header-height, 80px);
     }
 
     .page-home main {
-        margin-top: calc(55px + 45px);
+        margin-top: calc(var(--header-height, 80px) + 45px);
     }
 
     .page-home main.logo-hidden {
